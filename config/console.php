@@ -6,17 +6,37 @@ $db = require __DIR__ . '/db.php';
 $config = [
     'id' => 'basic-console',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', 'queue'],
     'controllerNamespace' => 'app\commands',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
+        '@npm' => '@vendor/npm-asset',
         '@tests' => '@app/tests',
     ],
     'components' => [
-        'cache' => [
-            'class' => 'yii\caching\FileCache',
+        'redis' => [
+            'class' => yii\redis\Connection::class,
+            'hostname' => 'redis',
+            'port' => 6379,
+            'database' => 0,
         ],
+
+       'cache' => [
+            'class' => \yii\redis\Cache::class,
+             'redis' => [
+            'hostname' => 'redis',
+            'port' => 6379,
+            'database' => 0,
+            ], 
+        ],
+
+        'queue' => [
+            'class' => \yii\queue\redis\Queue::class,
+            'redis' => 'redis',
+            'channel' => 'queue',
+            'as log' => \yii\queue\LogBehavior::class,
+        ],
+
         'log' => [
             'targets' => [
                 [
@@ -25,6 +45,7 @@ $config = [
                 ],
             ],
         ],
+
         'db' => $db,
     ],
     'params' => $params,

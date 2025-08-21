@@ -23,10 +23,6 @@ class m250820_104313_create_request_table extends Migration
             'updated_at' => $this->timestamp()->null(),
         ]);
 
-
-            $this->createIndex('idx-request-status', '{{%request}}', 'status');
-            $this->createIndex('idx-request-email', '{{%request}}', 'email');
-            $this->createIndex('idx-request-created_at', '{{%request}}', 'created_at');
     }
 
     /**

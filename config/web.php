@@ -21,36 +21,28 @@ $config = [
         ],
 
         'cache' => [
-
-            // АХТУНГ!!!
-            // ДЛЯ ДАЛЬНЕШЕГО УЛУЧШЕНИЯ МАШТАБИРУЕМОСТИ БУДЕТ ИСПОЛЬЗОВАТЬСЯ РЕДИС ДЛЯ ОЧЕРЕДЕЙ,
-            // Я СЕЙЧАС НЕ УСТАНОВИЛ РЕДИС НАДО ЕГО ДОУСТАНАВЛИВАТЬ И ПЕРИПИСАТЬ ПОЧТОВИК
-            // НАДО БЫЛО С САМОГО НАЧАЛА ПИСАТЬ С ОЧЕРЕДЯМИ 
-            /* 
-            'class' => 'yii\caching\RedisCache',
+            'class' => \yii\redis\Cache::class,
              'redis' => [
             'hostname' => 'redis',
             'port' => 6379,
             'database' => 0,
             ], 
-            */
-            'class' => 'yii\caching\FileCache',
         ],
-        /*
+       
         'queue' => [
             'class' => \yii\queue\redis\Queue::class,
             'as log' => \yii\queue\LogBehavior::class,
-            'redis' => 'redis', // Redis connection component or its config
-            'channel' => 'queue', // Queue channel key
+            'redis' => 'redis', 
+            'channel' => 'queue', 
         ],
+        
         'redis' => [
             'class' => 'yii\redis\Connection',
             'hostname' => 'redis',
             'port' => 6379,
             'database' => 0,
         ],
-        */
-
+    
 
         'user' => [
             'identityClass' => 'app\models\User',
