@@ -5,9 +5,13 @@
 3) создать .env файл c
    
 MYSQL_ROOT_PASSWORD=password
+
 MYSQL_DATABASE=yii2db
+
 MYSQL_USER=yiiuser
+
 MYSQL_PASSWORD=password
+
 
 
 YII_ENV=dev
@@ -17,6 +21,7 @@ YII_ENV=dev
 
 
 Запустить очереди 
+
 3.1) ./yii queue/listen & 
 
 
@@ -28,28 +33,42 @@ YII_ENV=dev
 
 
 POST http://localhost:8080/requests
+
 connection keep-alive
+
 Content-Type application/json
+
 
 {
     "name": "Вася Пупкин",
+    
     "email": "vasya@example.com",
+    
     "message": "Привед"
+    
 }
 
 
 
 PUT http://localhost:8080/requests/1
+
 Basic auth
+
 password: admin
+
 username: admin 
 
 
+
 connection keep-alive
+
 Content-Type application/json
+
 {
     "status": "Resolved",
+    
     "comment" :" малаца"
+    
 }
 
 Тесты не писал.
