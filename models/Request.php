@@ -56,12 +56,12 @@ class Request extends ActiveRecord
     public function rules()
     {
               return [
-            [['name', 'email', 'message'], 'required', 'message' => 'Поле {attribute} обязательно'],
-            [['message', 'comment'], 'string', 'message' => 'Поле {attribute} должно быть строкой'],
-            [['name', 'email'], 'string', 'max' => 100, 'tooLong' => 'Поле {attribute} не должно превышать 100 символов'],
+            [['name', 'email', 'message'], 'required'],
+            [['message', 'comment'], 'string'],
+            [['name', 'email'], 'string', 'max' => 100],
             [['created_at', 'updated_at'], 'safe'],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_RESOLVED], 'message' => 'Недопустимый статус'],
-            ['email', 'email', 'message' => 'Введите корректный email'],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_RESOLVED]],
+            ['email', 'email'],
             ];
     }
 
