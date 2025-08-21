@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Traits\Timestamp;
 use yii\db\Migration;
 
 class m250820_115414_insert_test_users extends Migration
@@ -9,10 +10,10 @@ class m250820_115414_insert_test_users extends Migration
      */
     public function safeUp()
     {
-          $time = time();
+          $time = date('Y-m-d H:i:s');;
         
         //Тестовые пользователи
-        $this->batchInsert('users', [
+        $this->batchInsert('{{%users}}', [
             'username', 
             'password_hash', 
             'auth_key', 

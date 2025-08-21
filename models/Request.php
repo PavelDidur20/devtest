@@ -8,7 +8,7 @@ use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 
 /**
- * Это класс модели для таблицы "request".
+ * Класс модели для таблицы "requests".
  *
  * @property int $id
  * @property string $name
@@ -23,13 +23,13 @@ class Request extends ActiveRecord
 {
     const STATUS_ACTIVE = 'Active';
     const STATUS_RESOLVED = 'Resolved';
-    
+
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'request';
+        return '{{%requests}}';
     }
 
     /**
@@ -37,8 +37,16 @@ class Request extends ActiveRecord
      */
     public function behaviors()
     {
+
         return [
-            TimestampBehavior::class,
+            [
+                'class' => TimestampBehavior::class,
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+                'value' => fn() => date('Y-m-d H:i:s'),
+            ],
         ];
     }
 
@@ -47,19 +55,14 @@ class Request extends ActiveRecord
      */
     public function rules()
     {
-        return [
-            [['name', 'email', 'message'], 'required'],
-            [['message', 'comment'], 'string'],
-            [['created_at', 'updated_at'], 'integer'],
-            [['name', 'email'], 'string', 'max' => 100],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_RESOLVED]],
-            ['email', 'email'],
-            
-            // Комментарий обязателен при статусе Resolved
-            ['comment', 'required', 'when' => function($model) {
-                return $model->status == self::STATUS_RESOLVED;
-            }],
-        ];
+              return [
+            [['name', 'email', 'message'], 'required', 'message' => 'Поле {attribute} обязательно'],
+            [['message', 'comment'], 'string', 'message' => 'Поле {attribute} должно быть строкой'],
+            [['name', 'email'], 'string', 'max' => 100, 'tooLong' => 'Поле {attribute} не должно превышать 100 символов'],
+            [['created_at', 'updated_at'], 'safe'],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_RESOLVED], 'message' => 'Недопустимый статус'],
+            ['email', 'email', 'message' => 'Введите корректный email'],
+            ];
     }
 
     /**
@@ -78,11 +81,26 @@ class Request extends ActiveRecord
             'updated_at' => 'Updated At',
         ];
     }
-    
-  
+
+
     public function isStatusChangedToResolved()
     {
-        return $this->getOldAttribute('status') != self::STATUS_RESOLVED && 
-               $this->status == self::STATUS_RESOLVED;
+        return $this->getOldAttribute('status') != self::STATUS_RESOLVED &&
+            $this->status == self::STATUS_RESOLVED;
+    }
+
+        public function beforeValidate()
+    {
+        if (!parent::beforeValidate()) {
+            return false;
+        }
+
+        if ($this->isAttributeChanged('status') && $this->status === self::STATUS_RESOLVED) {
+            if (trim((string)$this->comment) === '') {
+                $this->addError('comment', 'Комментарий обязателен для решённых заявок');
+            }
+        }
+
+        return true;
     }
 }

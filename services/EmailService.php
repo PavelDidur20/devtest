@@ -19,22 +19,22 @@ class EmailService
         try {
             $mailPath = Yii::getAlias('@runtime/mail');
             
-            // Создаем директорию, если не существует
+            
             if (!file_exists($mailPath)) {
                 mkdir($mailPath, 0777, true);
             }
             
-            // Сохраняем email в файл (вместо реальной отправки)
+           
             $filename = $mailPath . '/request_' . $request->id . '_' . time() . '.eml';
             $content = $this->buildEmailContent($request);
             
             file_put_contents($filename, $content);
             
-            Yii::info("Email saved to: $filename", 'request');
+            Yii::info("Email сохранен: $filename", 'request');
             
             return true;
         } catch (\Exception $e) {
-            Yii::error("Failed to save email: " . $e->getMessage(), 'request');
+            Yii::error("Не получилось сохранить емайл: " . $e->getMessage(), 'request');
             return false;
         }
     }
@@ -49,10 +49,10 @@ class EmailService
     {
         $content = "To: " . $request->email . "\n";
         $content .= "Subject: Your request has been resolved\n\n";
-        $content .= "Hello " . $request->name . ",\n\n";
-        $content .= "Your request has been resolved. Here is our comment:\n\n";
+        $content .= "Доброго времени!" . $request->name . ",\n\n";
+        $content .= "Ваша заявка была обработана с коментарием: \n\n";
         $content .= $request->comment . "\n\n";
-        $content .= "Best regards,\nSupport Team";
+        $content .= "С лучшими пожеланиями,\nООО Рога и Копыта Адвансед Технолоджиес";
         
         return $content;
     }

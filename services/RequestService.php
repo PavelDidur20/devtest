@@ -1,6 +1,4 @@
 <?php
-// services/RequestService.php
-
 namespace app\services;
 
 use Yii;
@@ -12,27 +10,25 @@ use yii\web\NotFoundHttpException;
 class RequestService
 {
     /**
-     * Возвращает провайдер данных для списка заявок с фильтрацией
-     * 
-     * @param array $filterParams
-     * @return ActiveDataProvider
+     * Возвращает отфильтрованный провайдер данных на основе заданных критериев.
+     *
+     * @param array $filters Массив фильтров для применения к данным.
+     * @return \yii\data\ActiveDataProvider Провайдер данных с применёнными фильтрами.
      */
     public function getFilteredDataProvider($filterParams)
     {
         $query = Request::find();
         
-        // Фильтрация по статусу
         if (!empty($filterParams['status']) && 
             in_array($filterParams['status'], [Request::STATUS_ACTIVE, Request::STATUS_RESOLVED])) {
             $query->andWhere(['status' => $filterParams['status']]);
         }
         
-        // Фильтрация по дате
         if (!empty($filterParams['date_from'])) {
-            $query->andWhere(['>=', 'created_at', strtotime($filterParams['date_from'])]);
+            $query->andWhere(['>=', 'created_at', $filterParams['date_from']]);
         }
         if (!empty($filterParams['date_to'])) {
-            $query->andWhere(['<=', 'created_at', strtotime($filterParams['date_to'] . ' 23:59:59')]);
+            $query->andWhere(['<=', 'created_at', $filterParams['date_to']]);
         }
         
         return new ActiveDataProvider([
@@ -44,34 +40,36 @@ class RequestService
     }
     
     /**
-     * Обновляет заявку и отправляет email при изменении статуса
-     * 
-     * @param int $id
-     * @param array $data
-     * @param EmailService $emailService
-     * @return Request
-     * @throws NotFoundHttpException
-     * @throws BadRequestHttpException
+     * Обновляет существующий запрос с новыми данными.
+     *
+     * @param int $id Идентификатор запроса, который необходимо обновить.
+     * @param array $data Ассоциативный массив с новыми данными для обновления запроса.
+     * @return bool Возвращает true в случае успешного обновления, иначе false.
      */
     public function updateRequest($id, $data, EmailService $emailService)
     {
         $model = Request::findOne($id);
         if (!$model) {
-            throw new NotFoundHttpException("Request not found");
+            throw new NotFoundHttpException("Заявка не найдена");
         }
         
         $oldStatus = $model->status;
         
+        if ($oldStatus === Request::STATUS_RESOLVED && 
+            $model->status === Request::STATUS_RESOLVED) {
+                  throw new NotFoundHttpException("Заявка уже обработана ");
+           
+        }
         $model->load($data, '');
+        
         if (!$model->save()) {
-            throw new BadRequestHttpException('Failed to update request: ' . implode(', ', $model->getFirstErrors()));
+            throw new BadRequestHttpException('Ошибка при обновлении заявки: ' . implode(', ', $model->getFirstErrors()));
         }
 
-        if ($oldStatus !== Request::STATUS_RESOLVED && 
-            $model->status === Request::STATUS_RESOLVED) {
-            $emailService->sendRequestResolvedEmail($model);
-        }
+
+
+         $emailService->sendRequestResolvedEmail($model);
         
-        return $model;
+        return true;
     }
 }

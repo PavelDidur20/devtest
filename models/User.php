@@ -2,38 +2,35 @@
 
 namespace app\models;
 
-class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
+use yii\db\ActiveRecord;
+
+
+/**
+ * Это класс модели для таблицы "users".
+ * @property int $id
+ * @property string $username
+ * @property string $password_hash
+ * @property string $auth_key
+ * @property string $role
+ * @property string $created_at
+ * @property string $updated_at
+ */
+class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
+    const ROLE_MANAGER = 'manager';
+    const ROLE_CLIENT = 'client';
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
-
+    public static function tableName()
+    {
+        return '{{%users}}'; 
+    }
 
     /**
      * {@inheritdoc}
      */
     public static function findIdentity($id)
     {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+        return static::findOne($id);
     }
 
     /**
@@ -41,30 +38,18 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
+           return static::findOne(['accessToken' => $token]);
     }
 
     /**
-     * Finds user by username
+     * Найти пользователя 
      *
      * @param string $username
      * @return static|null
      */
     public static function findByUsername($username)
     {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
-        }
-
-        return null;
+       return static::findOne(['username' => $username]);
     }
 
     /**
@@ -99,6 +84,41 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+         return \Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    public function rules()
+    {
+        return [
+            [['username', 'password_hash', 'auth_key', 'role'], 'required'],
+            [['created_at', 'updated_at'], 'integer'],
+            [['username', 'password_hash', 'auth_key'], 'string', 'max' => 255],
+            [['role'], 'string', 'max' => 20],
+            [['role'], 'in', 'range' => [self::ROLE_MANAGER, self::ROLE_CLIENT]],
+            [['username'], 'unique'],
+        ];
+    }
+
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'username' => 'Username',
+            'password_hash' => 'Password Hash',
+            'auth_key' => 'Auth Key',
+            'role' => 'Role',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+        ];
+    }
+
+    public function isManager()
+    {
+        return $this->role === self::ROLE_MANAGER;
+    }
+
+     public function isClient()
+    {
+        return $this->role === self::ROLE_CLIENT;
     }
 }

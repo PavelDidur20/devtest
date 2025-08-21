@@ -9,19 +9,53 @@ $config = [
     'bootstrap' => ['log'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
+        '@npm' => '@vendor/npm-asset',
     ],
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'KHcswJTEnd6C984M3okzd6c68qyttrLu',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ],
         ],
+
         'cache' => [
+
+            // АХТУНГ!!!
+            // ДЛЯ ДАЛЬНЕШЕГО УЛУЧШЕНИЯ МАШТАБИРУЕМОСТИ БУДЕТ ИСПОЛЬЗОВАТЬСЯ РЕДИС ДЛЯ ОЧЕРЕДЕЙ,
+            // Я СЕЙЧАС НЕ УСТАНОВИЛ РЕДИС НАДО ЕГО ДОУСТАНАВЛИВАТЬ И ПЕРИПИСАТЬ ПОЧТОВИК
+            // НАДО БЫЛО С САМОГО НАЧАЛА ПИСАТЬ С ОЧЕРЕДЯМИ 
+            /* 
+            'class' => 'yii\caching\RedisCache',
+             'redis' => [
+            'hostname' => 'redis',
+            'port' => 6379,
+            'database' => 0,
+            ], 
+            */
             'class' => 'yii\caching\FileCache',
         ],
+        /*
+        'queue' => [
+            'class' => \yii\queue\redis\Queue::class,
+            'as log' => \yii\queue\LogBehavior::class,
+            'redis' => 'redis', // Redis connection component or its config
+            'channel' => 'queue', // Queue channel key
+        ],
+        'redis' => [
+            'class' => 'yii\redis\Connection',
+            'hostname' => 'redis',
+            'port' => 6379,
+            'database' => 0,
+        ],
+        */
+
+
         'user' => [
             'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
+            'enableAutoLogin' => false,
+            'enableSession' => false,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -37,22 +71,42 @@ $config = [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'levels' => ['error', 'warning', 'info', 'trace'],
+                    'logFile' => '@runtime/logs/app.log',
                 ],
             ],
         ],
         'db' => $db,
-        /*
+
         'urlManager' => [
             'enablePrettyUrl' => true,
+            'enableStrictParsing' => true,
             'showScriptName' => false,
             'rules' => [
+                [
+                    'class' => 'yii\rest\UrlRule',
+                    'controller' => 'request',
+                    'only' => ['index', 'view', 'update', 'create'],
+                    'extraPatterns' => [
+                        'PUT {id}' => 'update',
+                        'POST' => 'create',
+                        'GET' => 'index',
+                    ],
+
+                ],
             ],
         ],
-        */
+
+
+
+
+
     ],
+
+
+
     'params' => $params,
-       'container' => [
+    'container' => [
         'definitions' => [
             \app\services\RequestService::class => \app\services\RequestService::class,
             \app\services\EmailService::class => \app\services\EmailService::class,

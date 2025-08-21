@@ -1,0 +1,14 @@
+1) docker build
+2.1) docker compose -up -d
+2) создать .env файл c 
+MYSQL_ROOT_PASSWORD=password
+MYSQL_DATABASE=yii2db
+MYSQL_USER=yiiuser
+MYSQL_PASSWORD=password
+
+
+YII_ENV=dev
+
+3) ./yii migrate запустить миграции
+
+4) должно работать, проверял в Postman :)
