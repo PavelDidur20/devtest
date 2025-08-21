@@ -12,9 +12,10 @@ MYSQL_USER=yiiuser
 
 MYSQL_PASSWORD=password
 
-3) docker compose -up -d
-
 YII_ENV=dev
+
+
+3) docker compose -up -d
 
 
 4) ./yii migrate запустить миграции
