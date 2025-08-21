@@ -40,6 +40,7 @@ Content-Type application/json
 
 
 {
+
     "name": "Вася Пупкин",
     
     "email": "vasya@example.com",
@@ -65,6 +66,7 @@ connection keep-alive
 Content-Type application/json
 
 {
+
     "status": "Resolved",
     
     "comment" :" малаца"
