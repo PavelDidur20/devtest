@@ -18,7 +18,7 @@ YII_ENV=dev
 3) docker compose -up -d
 
 
-4) ./yii migrate запустить миграции
+4) ./yii migrate запустить миграции (внутри контейнера yii2)
 
 
 Запустить очереди 
